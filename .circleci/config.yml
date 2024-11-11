@@ -1,31 +1,30 @@
 version: 2.1
 
 jobs:
-  build-and-deploy:
+  build:
     docker:
-      - image: circleci/node:14.17.0
+      - image: cimg/node:18.0
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
+      - run:
+          name: List files in the root directory
+          command: |
+            ls -al /home/circleci/project  # List the files in the project directory to confirm structure
+      - run:
+          name: List files in customer-portal
+          command: |
+            ls -al /home/circleci/project/customer-portal  # List files inside the customer-portal directory
+      - run:
+          name: Install dependencies in customer-portal
+          command: |
+            cd /home/circleci/project/customer-portal && npm install  # Install dependencies from customer-portal
+      - sonarcloud/scan
 
-      # Backend (Node.js) project
-      - run: npm install
-      - run: npm run prod
-
-      # Frontend (React) project
-      - run: cd frontend
-      - run: npm install
-      - run: npm run build
-      - run: npm run test
-
-      # Deploy frontend
-      - deploy:
-          name: Deploy to production
-          command: npm run deploy
+orbs:
+  sonarcloud: sonarsource/sonarcloud@2.0.0
 
 workflows:
-  version: 2.1
-  build-and-deploy:
+  main:
     jobs:
-      - build-and-deploy
+      - build:
+          context: SonarCloud
