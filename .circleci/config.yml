@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   sonarqube:
     docker:
-      - image: cimg/openjdk:17.0  # Use the OpenJDK 17 image to ensure Java 17 compatibility
+      - image: cimg/openjdk:17.0
     steps:
       - checkout
       - run:
@@ -24,6 +24,7 @@ jobs:
           command: |
             export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
             export PATH=$JAVA_HOME/bin:$PATH
+            echo $JAVA_HOME
             java -version  # Confirm Java 17 is active for SonarScanner
             
       - run:
@@ -31,7 +32,7 @@ jobs:
           command: |
             SONAR_BRANCH="${CIRCLE_BRANCH:-master}"
             echo "Sonar branch value is : $SONAR_BRANCH"
-            sonar-scanner \
+            /usr/lib/jvm/java-17-openjdk-amd64/bin/java -jar /opt/sonar-scanner/bin/sonar-scanner \
               -Dsonar.projectKey="$SONAR_PROJECT_KEY" \
               -Dsonar.organization="$SONAR_ORG" \
               -Dsonar.host.url=https://sonarcloud.io \
