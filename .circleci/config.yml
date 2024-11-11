@@ -31,8 +31,12 @@ jobs:
           command: |
             wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip -O sonar-scanner.zip
             unzip sonar-scanner.zip
+            ls -l sonar-scanner-4.8.0.2856-linux
             sudo mv sonar-scanner-4.8.0.2856-linux /opt/sonar-scanner
             sudo ln -s /opt/sonar-scanner/bin/sonar-scanner /usr/local/bin/sonar-scanner
+            
+            # Verify the integrity of the SonarScanner directory
+            ls -R /opt/sonar-scanner
             
       - run:
           name: "Run SonarQube scanner"
@@ -43,6 +47,12 @@ jobs:
             # Check if Java executable exists
             if [ ! -x "$JAVA_HOME/bin/java" ]; then
               echo "Error: Java executable not found at $JAVA_HOME/bin/java"
+              exit 1
+            fi
+            
+            # Check if SonarScanner JAR exists
+            if [ ! -f "/opt/sonar-scanner/bin/sonar-scanner" ]; then
+              echo "Error: SonarScanner JAR not found at /opt/sonar-scanner/bin/sonar-scanner"
               exit 1
             fi
             
