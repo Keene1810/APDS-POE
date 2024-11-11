@@ -17,6 +17,10 @@ jobs:
     steps:
       - checkout  # Ensure the code is available in this job
       - run:
+          name: "Install findutils"
+          command: |
+            apt-get update && apt-get install -y findutils  # Install find command
+      - run:
           name: "Find files"
           command: "find ."
       - attach_workspace:
