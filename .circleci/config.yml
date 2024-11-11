@@ -48,3 +48,5 @@ workflows:
       - sonarqube:
           requires:
             - say-hello  # Ensure that 'sonarqube' runs after 'say-hello'
+          workspace:
+            at: /workspace  # Explicitly define the wo
