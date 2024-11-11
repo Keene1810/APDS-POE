@@ -20,7 +20,7 @@ jobs:
       - run:
           name: Install Sonar Scanner
           command: |
-             sudo install apt-get
+            install apt-get
             curl -sSLo /tmp/sonar-scanner.zip https://github.com/SonarSource/sonar-scanner-cli/releases/download/4.7.0.2747/sonar-scanner-cli-4.7.0.2747-linux.zip
             unzip /tmp/sonar-scanner.zip -d /opt
             export PATH=$PATH:/opt/sonar-scanner-4.7.0.2747-linux/bin
