@@ -9,6 +9,10 @@ jobs:
       - run:
           name: "Say hello"
           command: "echo Hello, World!"
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .  # Persist everything from the current working directory to the workspace
 
   sonarqube:
     docker:
@@ -16,15 +20,15 @@ jobs:
     resource_class: small
     steps:
       - checkout  # Ensure the code is available in this job
+      - attach_workspace:
+          at: /workspace  # Attach the workspace to /workspace
       - run:
           name: "Install findutils"
           command: |
             sudo apt-get update && sudo apt-get install -y findutils  # Install find command with sudo
       - run:
           name: "Find files"
-          command: "find ."
-      - attach_workspace:
-          at: /workspace  # Attach workspace to /workspace
+          command: "find /workspace"  # Now, find should work in the workspace directory
       - run:
           name: "Run SonarQube scanner"
           command: |
@@ -48,5 +52,3 @@ workflows:
       - sonarqube:
           requires:
             - say-hello  # Ensure that 'sonarqube' runs after 'say-hello'
-          workspace:
-            at: /workspace  # Explicitly define the wo
