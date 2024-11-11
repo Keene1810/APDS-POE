@@ -18,6 +18,9 @@ jobs:
     working_directory: ~/build
     steps:
       - checkout
+      - run:
+          name: Install findutils
+          command: apk add --no-cache findutils
       - run: find .
       - attach_workspace:
           at: ~/workspace
