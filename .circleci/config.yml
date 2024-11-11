@@ -11,8 +11,7 @@ jobs:
 
       # Backend (Node.js) project
       - run: npm install
-      - run: npm run devStart
-      - run: npm test
+      - run: npm run prod
 
       # Frontend (React) project
       - run: cd frontend
