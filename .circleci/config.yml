@@ -1,33 +1,19 @@
 version: 2.1
 
 jobs:
-  say-hello:
-    docker:
-      - image: cimg/base:current
-    steps:
-      - checkout
-      - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
-
   sonarqube:
     docker:
-      - image: cimg/base:current
+      - image: cimg/openjdk:17.0  # Use the Java 17 Docker image
     steps:
       - checkout
       - run:
-          name: "Install Java 17 and SonarScanner"
+          name: "Verify Java version"
           command: |
-            # Install Java 17
-            sudo apt-get update
-            sudo apt-get install -y openjdk-17-jdk wget unzip
-            export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
-            export PATH="$JAVA_HOME/bin:$PATH"
-            
-            # Verify Java version
             java -version
-            
-            # Download and install SonarScanner
+            javac -version
+      - run:
+          name: "Install SonarScanner"
+          command: |
             wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip -O sonar-scanner.zip
             unzip sonar-scanner.zip
             sudo mv sonar-scanner-4.8.0.2856-linux /opt/sonar-scanner
@@ -38,21 +24,16 @@ jobs:
           command: |
             SONAR_BRANCH="${CIRCLE_BRANCH:-master}"
             echo "Sonar branch value is : $SONAR_BRANCH"
-            echo "Sonar org value is: $SONAR_ORG"
             sonar-scanner \
               -Dsonar.projectKey="$SONAR_PROJECT_KEY" \
               -Dsonar.organization="$SONAR_ORG" \
               -Dsonar.host.url=https://sonarcloud.io \
-              -Dsonar.exclusions="**/android/**,**/ios/**" \
               -Dsonar.login="$SONAR_TOKEN" \
               -Dsonar.branch.name="$SONAR_BRANCH" \
               -Dsonar.sources="."
 
 workflows:
   version: 2
-  say-hello-workflow:
+  sonar-workflow:
     jobs:
-      - say-hello
-      - sonarqube:
-          requires:
-            - say-hello
+      - sonarqube
