@@ -7,10 +7,25 @@ jobs:
     steps:
       - checkout
       - run:
-          name: "Verify Java version"
+          name: "Find Java 17 installation"
           command: |
+            echo "Available Java versions:"
+            ls -l /usr/lib/jvm/
+            
+            # Find Java 17 installation
+            JAVA_17_PATH=$(find /usr/lib/jvm -name "java" | grep "openjdk-17")
+            echo "Java 17 path: $JAVA_17_PATH"
+            
+            # Set JAVA_HOME
+            export JAVA_HOME=$(dirname $(dirname $JAVA_17_PATH))
+            echo "JAVA_HOME set to: $JAVA_HOME"
+            
+            # Update PATH
+            export PATH=$JAVA_HOME/bin:$PATH
+            
+            # Verify Java version
             java -version
-            javac -version
+            
       - run:
           name: "Install SonarScanner"
           command: |
@@ -20,19 +35,13 @@ jobs:
             sudo ln -s /opt/sonar-scanner/bin/sonar-scanner /usr/local/bin/sonar-scanner
             
       - run:
-          name: "Set Java 17 for SonarScanner"
-          command: |
-            export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-            export PATH=$JAVA_HOME/bin:$PATH
-            echo $JAVA_HOME
-            java -version  # Confirm Java 17 is active for SonarScanner
-            
-      - run:
           name: "Run SonarQube scanner with Java 17"
           command: |
             SONAR_BRANCH="${CIRCLE_BRANCH:-master}"
             echo "Sonar branch value is : $SONAR_BRANCH"
-            /usr/lib/jvm/java-17-openjdk-amd64/bin/java -jar /opt/sonar-scanner/bin/sonar-scanner \
+            
+            # Run SonarScanner using the located Java 17 binary
+            $JAVA_17_PATH -jar /opt/sonar-scanner/bin/sonar-scanner \
               -Dsonar.projectKey="$SONAR_PROJECT_KEY" \
               -Dsonar.organization="$SONAR_ORG" \
               -Dsonar.host.url=https://sonarcloud.io \
