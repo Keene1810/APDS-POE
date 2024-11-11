@@ -27,16 +27,19 @@ jobs:
             java --version
             
       - run:
-          name: "Install SonarScanner"
+          name: "Download and verify SonarScanner"
           command: |
-            wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip -O sonar-scanner.zip
-            unzip sonar-scanner.zip
-            ls -l sonar-scanner-4.8.0.2856-linux
-            sudo mv sonar-scanner-4.8.0.2856-linux /opt/sonar-scanner
-            sudo ln -s /opt/sonar-scanner/bin/sonar-scanner /usr/local/bin/sonar-scanner
+            mkdir -p /opt/sonar-scanner/bin
+            wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip -O /tmp/sonar-scanner.zip
             
-            # Verify the integrity of the SonarScanner directory
-            ls -R /opt/sonar-scanner
+            # Verify the downloaded file
+            unzip -l /tmp/sonar-scanner.zip
+            
+            # Extract the JAR file directly
+            unzip -j /tmp/sonar-scanner.zip 'sonar-scanner-cli-4.8.0.2856-linux/bin/sonar-scanner' -d /opt/sonar-scanner/bin
+            
+            # Verify the extracted JAR file
+            ls -l /opt/sonar-scanner/bin/sonar-scanner
             
       - run:
           name: "Run SonarQube scanner"
