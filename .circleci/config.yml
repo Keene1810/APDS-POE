@@ -1,14 +1,32 @@
 version: 2.1
 
 jobs:
-  build:
+  build-and-deploy:
     docker:
-      - image: circleci/node:14
-
+      - image: circleci/node:14.17.0
     steps:
       - checkout
-      - run:
-          name: Download and extract ZIP file
-          command: |
-            curl -L https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip -o sonar-scanner.zip
-            unzip sonar-scanner.zip
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      # Backend (Node.js) project
+      - run: npm install
+      - run: npm run devStart
+      - run: npm test
+
+      # Frontend (React) project
+      - run: cd frontend
+      - run: npm install
+      - run: npm run build
+      - run: npm run test
+
+      # Deploy frontend
+      - deploy:
+          name: Deploy to production
+          command: npm run deploy
+
+workflows:
+  version: 2.1
+  build-and-deploy:
+    jobs:
+      - build-and-deploy
