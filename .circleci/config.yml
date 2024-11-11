@@ -40,7 +40,13 @@ jobs:
             SONAR_BRANCH="${CIRCLE_BRANCH:-master}"
             echo "Sonar branch value is : $SONAR_BRANCH"
             
-            # Run SonarScanner using the full path to the Java executable
+            # Check if Java executable exists
+            if [ ! -x "$JAVA_PATH" ]; then
+              echo "Error: Java executable not found at $JAVA_PATH"
+              exit 1
+            fi
+            
+            # Run SonarScanner
             "$JAVA_PATH" -jar "/opt/sonar-scanner/bin/sonar-scanner" \
               -Dsonar.projectKey="$SONAR_PROJECT_KEY" \
               -Dsonar.organization="$SONAR_ORG" \
