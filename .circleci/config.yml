@@ -9,10 +9,13 @@ jobs:
       - run:
           name: "Say hello"
           command: "echo Hello, World!"
+      - run:
+          name: "Create workspace directory"
+          command: mkdir -p workspace  # Create the workspace directory
       - persist_to_workspace:
-          root: .
+          root: ./workspace  # Persist workspace directory here
           paths:
-            - .  # Persist everything from the current working directory to the workspace
+            - .  # Persist everything in the current directory (if needed)
 
   sonarqube:
     docker:
@@ -21,14 +24,14 @@ jobs:
     steps:
       - checkout  # Ensure the code is available in this job
       - attach_workspace:
-          at: /workspace  # Attach the workspace to /workspace
+          at: ./workspace  # Attach the workspace to a custom directory
       - run:
           name: "Install findutils"
           command: |
             sudo apt-get update && sudo apt-get install -y findutils  # Install find command with sudo
       - run:
           name: "Find files"
-          command: "find /workspace"  # Now, find should work in the workspace directory
+          command: "find ./workspace"  # Search in the attached workspace directory
       - run:
           name: "Run SonarQube scanner"
           command: |
@@ -40,15 +43,4 @@ jobs:
               -Dsonar.organization="$SONAR_ORG" \
               -Dsonar.host.url=https://sonarcloud.io \
               -Dsonar.exclusions="**/android/**,**/ios/**" \
-              -Dsonar.login="$SONAR_TOKEN" \
-              -Dsonar.branch.name="$SONAR_BRANCH" \
-              -Dsonar.sources="."
-
-workflows:
-  version: 2
-  say-hello-workflow:
-    jobs:
-      - say-hello
-      - sonarqube:
-          requires:
-            - say-hello  # Ensure that 'sonarqube' runs after 'say-hello'
+              -Dsonar.login="$SONAR_TOKEN
