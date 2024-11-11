@@ -11,36 +11,28 @@ jobs:
           name: "Say hello"
           command: "echo Hello, World!"
 
-  sonarqube:
-    working_directory: ~/build
-    docker:
-      - image: cimg/python:latest  # Use a base image with find and other utilities
-    resource_class: small
-    steps:
-      - run:
-          name: Install Sonar Scanner
-          command: |
-            install apt-get
-            curl -sSLo /tmp/sonar-scanner.zip https://github.com/SonarSource/sonar-scanner-cli/releases/download/4.7.0.2747/sonar-scanner-cli-4.7.0.2747-linux.zip
-            unzip /tmp/sonar-scanner.zip -d /opt
-            export PATH=$PATH:/opt/sonar-scanner-4.7.0.2747-linux/bin
-      - run:
-          name: "Find Files"
-          command: find .
-      - attach_workspace:
+sonarqube:
+          working_directory: ~/build
+          docker:
+          - image: sonarsource/sonar-scanner-cli
+          resource_class: small
+          steps:
+          - run: find .
+          - attach_workspace:
           at: ~/workspace
-      - run: |
+          - run:
           SONAR_BRANCH="${CIRCLE_BRANCH:-master}"
-          echo "Sonar branch value is: $SONAR_BRANCH"
-          echo "Sonar org value is: $SONAR_ORG"
+          echo "Sonar branch value is : " $SONAR_BRANCH
+          echo "Sonar org value is: "$SONAR_ORG
           sonar-scanner \
-            -Dsonar.projectKey="$SONAR_PROJECT_KEY" \
-            -Dsonar.organization="$SONAR_ORG" \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.exclusions="**/android/**,**/ios/**" \
-            -Dsonar.login="$SONAR_TOKEN" \
-            -Dsonar.branch.name="$SONAR_BRANCH" \
-            -Dsonar.sources="."
+          -Dsonar.projectKey="$SONAR_PROJECT_KEY" \
+          -DSonar.organization="$SONAR_ORG" \
+          -DSonar.host.url=https://sonarcloud.io \
+          -DSonar.exclusions="**/android/**,**/ios/**\
+          -DSonar.login="$SONAR_TOKEN" \
+          -DSonar.branch.name="$SONAR_BRANCH" \
+          -DSonar.sources="."
+
 
 workflows:
   say-hello-workflow:
