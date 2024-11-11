@@ -4,7 +4,6 @@ jobs:
   say-hello:
     docker:
       - image: cimg/base:current
-
     steps:
       - checkout
       - run:
@@ -16,12 +15,12 @@ jobs:
       - image: sonarsource/sonar-scanner-cli
     resource_class: small
     steps:
-      - checkout
+      - checkout  # Ensure the code is available in this job
       - run:
           name: "Find files"
           command: "find ."
       - attach_workspace:
-          at: /workspace
+          at: /workspace  # Attach workspace to /workspace
       - run:
           name: "Run SonarQube scanner"
           command: |
@@ -42,4 +41,6 @@ workflows:
   say-hello-workflow:
     jobs:
       - say-hello
-      - sonarqube
+      - sonarqube:
+          requires:
+            - say-hello
