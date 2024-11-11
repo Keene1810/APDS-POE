@@ -1,85 +1,14 @@
 version: 2.1
 
 jobs:
-  sonarqube:
+  build:
     docker:
-      - image: cimg/openjdk:17.0
+      - image: circleci/node:14
+
     steps:
       - checkout
       - run:
-          name: "Find Java installation"
+          name: Download and extract ZIP file
           command: |
-            echo "Available Java versions:"
-            java --version
-            
-            # Find Java executable
-            JAVA_PATH=$(command -v java)
-            echo "Java path: $JAVA_PATH"
-            
-            # Set JAVA_HOME
-            export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-            echo "JAVA_HOME set to: $JAVA_HOME"
-            
-            # Update PATH
-            export PATH=$JAVA_HOME/bin:$PATH
-            
-            # Verify Java version again
-            java --version
-            
-      - run:
-          name: "Download and verify SonarScanner"
-          command: |
-            mkdir -p $HOME/sonar-scanner/bin
-            wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip -O /tmp/sonar-scanner.zip
-            
-            # Verify the downloaded file
-            unzip -l /tmp/sonar-scanner.zip | grep sonar-scanner-cli
-            
-            # Extract all files from the zip archive
-            unzip -d $HOME/sonar-scanner $HOME/sonar-scanner.zip
-            
-            # List the contents of the extracted directory
-            ls -R $HOME/sonar-scanner
-            
-            # Find the sonar-scanner executable
-            SONAR_SCANNER=$(find $HOME/sonar-scanner -type f -name "sonar-scanner")
-            echo "Found sonar-scanner at: $SONAR_SCANNER"
-            
-            # Create a symlink to the found sonar-scanner
-            ln -s $SONAR_SCANNER $HOME/sonar-scanner/bin/sonar-scanner
-            
-            # Verify the symlink
-            ls -l $HOME/sonar-scanner/bin/sonar-scanner
-            
-      - run:
-          name: "Run SonarQube scanner"
-          command: |
-            SONAR_BRANCH="${CIRCLE_BRANCH:-master}"
-            echo "Sonar branch value is : $SONAR_BRANCH"
-            
-            # Check if Java executable exists
-            if [ ! -x "$JAVA_HOME/bin/java" ]; then
-              echo "Error: Java executable not found at $JAVA_HOME/bin/java"
-              exit 1
-            fi
-            
-            # Check if SonarScanner symlink exists
-            if [ ! -L "$HOME/sonar-scanner/bin/sonar-scanner" ]; then
-              echo "Error: SonarScanner symlink not found at $HOME/sonar-scanner/bin/sonar-scanner"
-              exit 1
-            fi
-            
-            # Run SonarScanner
-            "$JAVA_HOME/bin/java" -jar "$HOME/sonar-scanner/bin/sonar-scanner" \
-              -Dsonar.projectKey="$SONAR_PROJECT_KEY" \
-              -Dsonar.organization="$SONAR_ORG" \
-              -Dsonar.host.url="https://sonarcloud.io" \
-              -Dsonar.login="$SONAR_TOKEN" \
-              -Dsonar.branch.name="$SONAR_BRANCH" \
-              -Dsonar.sources="."
-
-workflows:
-  version: 2
-  sonar-workflow:
-    jobs:
-      - sonarqube
+            curl -L https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip -o sonar-scanner.zip
+            unzip sonar-scanner.zip
