@@ -12,7 +12,7 @@ jobs:
 
   sonarqube:
     docker:
-      - image: sonarsource/sonar-scanner-cli
+      - image: cimg/base:current  # Use a more full-featured image that includes apt-get
     resource_class: small
     steps:
       - checkout  # Ensure the code is available in this job
