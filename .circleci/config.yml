@@ -31,7 +31,7 @@ jobs:
             sudo apt-get update && sudo apt-get install -y findutils  # Install find command with sudo
       - run:
           name: "Find files"
-          command: "find ./workspace" 
+          command: "find ./workspace"  # Search in the attached workspace directory
       - run:
           name: "Run SonarQube scanner"
           command: |
@@ -43,4 +43,15 @@ jobs:
               -Dsonar.organization="$SONAR_ORG" \
               -Dsonar.host.url=https://sonarcloud.io \
               -Dsonar.exclusions="**/android/**,**/ios/**" \
-              -Dsonar.login="$SONAR_TOKEN
+              -Dsonar.login="$SONAR_TOKEN" \
+              -Dsonar.branch.name="$SONAR_BRANCH" \
+              -Dsonar.sources="./workspace"  # Use the correct directory for sources
+
+workflows:
+  version: 2
+  say-hello-workflow:
+    jobs:
+      - say-hello
+      - sonarqube:
+          requires:
+            - say-hello  # Ensure that 'sonarqube' runs after 'say-hello'
