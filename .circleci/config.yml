@@ -14,14 +14,18 @@ jobs:
   sonarqube:
     working_directory: ~/build
     docker:
-      - image: sonarsource/sonar-scanner-cli
+      - image: cimg/python:latest  # Use a base image with find and other utilities
     resource_class: small
     steps:
       - run:
-          name: Install find
+          name: Install Sonar Scanner
           command: |
-            apt-get update && apt-get install -y findutils
-      - run: find .
+            curl -sSLo /tmp/sonar-scanner.zip https://github.com/SonarSource/sonar-scanner-cli/releases/download/4.7.0.2747/sonar-scanner-cli-4.7.0.2747-linux.zip
+            unzip /tmp/sonar-scanner.zip -d /opt
+            export PATH=$PATH:/opt/sonar-scanner-4.7.0.2747-linux/bin
+      - run:
+          name: "Find Files"
+          command: find .
       - attach_workspace:
           at: ~/workspace
       - run: |
