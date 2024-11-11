@@ -13,11 +13,11 @@ jobs:
             java --version
             
             # Find Java executable
-            JAVA_PATH=$(which java)
+            JAVA_PATH=$(command -v java)
             echo "Java path: $JAVA_PATH"
             
             # Set JAVA_HOME
-            export JAVA_HOME=$(dirname $(dirname $JAVA_PATH))
+            export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
             echo "JAVA_HOME set to: $JAVA_HOME"
             
             # Update PATH
@@ -41,13 +41,13 @@ jobs:
             echo "Sonar branch value is : $SONAR_BRANCH"
             
             # Check if Java executable exists
-            if [ ! -x "$JAVA_PATH" ]; then
-              echo "Error: Java executable not found at $JAVA_PATH"
+            if [ ! -x "$JAVA_HOME/bin/java" ]; then
+              echo "Error: Java executable not found at $JAVA_HOME/bin/java"
               exit 1
             fi
             
             # Run SonarScanner
-            "$JAVA_PATH" -jar "/opt/sonar-scanner/bin/sonar-scanner" \
+            "$JAVA_HOME/bin/java" -jar "/opt/sonar-scanner/bin/sonar-scanner" \
               -Dsonar.projectKey="$SONAR_PROJECT_KEY" \
               -Dsonar.organization="$SONAR_ORG" \
               -Dsonar.host.url="https://sonarcloud.io" \
