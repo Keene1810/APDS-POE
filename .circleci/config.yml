@@ -13,7 +13,6 @@ jobs:
   sonarqube:
     docker:
       - image: cimg/base:current
-    resource_class: small
     steps:
       - checkout
       - run:
@@ -29,4 +28,31 @@ jobs:
             java -version
             
             # Download and install SonarScanner
-            wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux
+            wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip -O sonar-scanner.zip
+            unzip sonar-scanner.zip
+            sudo mv sonar-scanner-4.8.0.2856-linux /opt/sonar-scanner
+            sudo ln -s /opt/sonar-scanner/bin/sonar-scanner /usr/local/bin/sonar-scanner
+            
+      - run:
+          name: "Run SonarQube scanner"
+          command: |
+            SONAR_BRANCH="${CIRCLE_BRANCH:-master}"
+            echo "Sonar branch value is : $SONAR_BRANCH"
+            echo "Sonar org value is: $SONAR_ORG"
+            sonar-scanner \
+              -Dsonar.projectKey="$SONAR_PROJECT_KEY" \
+              -Dsonar.organization="$SONAR_ORG" \
+              -Dsonar.host.url=https://sonarcloud.io \
+              -Dsonar.exclusions="**/android/**,**/ios/**" \
+              -Dsonar.login="$SONAR_TOKEN" \
+              -Dsonar.branch.name="$SONAR_BRANCH" \
+              -Dsonar.sources="."
+
+workflows:
+  version: 2
+  say-hello-workflow:
+    jobs:
+      - say-hello
+      - sonarqube:
+          requires:
+            - say-hello
