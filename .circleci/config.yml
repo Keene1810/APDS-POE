@@ -12,14 +12,14 @@ jobs:
 
   sonarqube:
     docker:
-      - image: cimg/base:current  # Use a more full-featured image that includes apt-get
+      - image: cimg/base:current  # Use a full-featured image that supports apt-get
     resource_class: small
     steps:
       - checkout  # Ensure the code is available in this job
       - run:
           name: "Install findutils"
           command: |
-            apt-get update && apt-get install -y findutils  # Install find command
+            sudo apt-get update && sudo apt-get install -y findutils  # Install find command with sudo
       - run:
           name: "Find files"
           command: "find ."
@@ -32,19 +32,4 @@ jobs:
             echo "Sonar branch value is : $SONAR_BRANCH"
             echo "Sonar org value is: $SONAR_ORG"
             sonar-scanner \
-              -Dsonar.projectKey="$SONAR_PROJECT_KEY" \
-              -Dsonar.organization="$SONAR_ORG" \
-              -Dsonar.host.url=https://sonarcloud.io \
-              -Dsonar.exclusions="**/android/**,**/ios/**" \
-              -Dsonar.login="$SONAR_TOKEN" \
-              -Dsonar.branch.name="$SONAR_BRANCH" \
-              -Dsonar.sources="."
-
-workflows:
-  version: 2
-  say-hello-workflow:
-    jobs:
-      - say-hello
-      - sonarqube:
-          requires:
-            - say-hello
+              -Dsonar.projectKey="$
