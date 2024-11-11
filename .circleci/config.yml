@@ -33,12 +33,22 @@ jobs:
             wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip -O /tmp/sonar-scanner.zip
             
             # Verify the downloaded file
-            unzip -l /tmp/sonar-scanner.zip
+            unzip -l /tmp/sonar-scanner.zip | grep sonar-scanner-cli
             
-            # Extract the JAR file directly
-            unzip -j /tmp/sonar-scanner.zip 'sonar-scanner-cli-4.8.0.2856-linux/bin/sonar-scanner' -d $HOME/sonar-scanner/bin
+            # Extract all files from the zip archive
+            unzip -d $HOME/sonar-scanner $HOME/sonar-scanner.zip
             
-            # Verify the extracted JAR file
+            # List the contents of the extracted directory
+            ls -R $HOME/sonar-scanner
+            
+            # Find the sonar-scanner executable
+            SONAR_SCANNER=$(find $HOME/sonar-scanner -type f -name "sonar-scanner")
+            echo "Found sonar-scanner at: $SONAR_SCANNER"
+            
+            # Create a symlink to the found sonar-scanner
+            ln -s $SONAR_SCANNER $HOME/sonar-scanner/bin/sonar-scanner
+            
+            # Verify the symlink
             ls -l $HOME/sonar-scanner/bin/sonar-scanner
             
       - run:
@@ -53,9 +63,9 @@ jobs:
               exit 1
             fi
             
-            # Check if SonarScanner JAR exists
-            if [ ! -f "$HOME/sonar-scanner/bin/sonar-scanner" ]; then
-              echo "Error: SonarScanner JAR not found at $HOME/sonar-scanner/bin/sonar-scanner"
+            # Check if SonarScanner symlink exists
+            if [ ! -L "$HOME/sonar-scanner/bin/sonar-scanner" ]; then
+              echo "Error: SonarScanner symlink not found at $HOME/sonar-scanner/bin/sonar-scanner"
               exit 1
             fi
             
